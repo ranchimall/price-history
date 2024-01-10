@@ -169,6 +169,15 @@ function loadHistoricToDb() {
             console.log(err);
         })
 }
+// run loadHistoricToDb() only once when the server starts and no data is present in the database
+PriceHistory.countDocuments({}, (err, count) => {
+    if (err) {
+        console.log(err);
+    }
+    if (count === 0) {
+        loadHistoricToDb();
+    }
+})
 
 app.get("/price-history", async (req, res) => {
     try {
