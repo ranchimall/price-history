@@ -2,4 +2,4 @@ GET http://localhost:3000/
 
 ###
 
-GET http://localhost:3000/price-history
+GET http://localhost:3000/price-history?limit=10&currency=inr

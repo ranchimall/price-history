@@ -93,25 +93,25 @@ app.get("/", (req, res) => {
                         <td>from</td>
                         <td>No</td>
                         <td>None</td>
-                        <td>DD-MM-YYYY</td>
+                        <td>YYYY-MM-DD</td>
                     </tr>
                     <tr>
                         <td>to</td>
                         <td>No</td>
                         <td>None</td>
-                        <td>DD-MM-YYYY</td>
+                        <td>YYYY-MM-DD</td>
                     </tr>
                     <tr>
                         <td>on</td>
                         <td>No</td>
                         <td>None</td>
-                        <td>DD-MM-YYYY</td>
+                        <td>YYYY-MM-DD</td>
                     </tr>
                     <tr>
                         <td>limit</td>
                         <td>No</td>
                         <td>100</td>
-                        <td>all | number</td>
+                        <td>all | &lt;number&gt;</td>
                     </tr>
                     <tr>
                         <td>asset</td>
@@ -122,8 +122,8 @@ app.get("/", (req, res) => {
                     <tr>
                         <td>currency</td>
                         <td>No</td>
-                        <td>usd</td>
-                        <td>usd, inr</td>
+                        <td>All</td>
+                        <td>usd | inr</td>
                     </tr>
                 </tbody>
             </table>
@@ -133,7 +133,7 @@ app.get("/", (req, res) => {
             <ul>
                 <li>
                     <code>
-                        /price-history?from=01-01-2020&to=01-01-2021&amp;asset=btc&amp;currency=usd
+                        /price-history?from=2020-01-01&to=2020-01-31
                     </code>
                 </li>
             </ul>
@@ -170,21 +170,21 @@ function loadHistoricToDb() {
         })
 }
 // run loadHistoricToDb() only once when the server starts and no data is present in the database
-PriceHistory.countDocuments({}, (err, count) => {
-    if (err) {
+PriceHistory.countDocuments()
+    .then((count) => {
+        if (count === 0) {
+            loadHistoricToDb();
+        }
+    })
+    .catch((err) => {
         console.log(err);
-    }
-    if (count === 0) {
-        loadHistoricToDb();
-    }
-})
+    })
 
 app.get("/price-history", async (req, res) => {
     try {
-        const { from, to, on, limit = 100, asset = 'btc', currency = 'usd' } = req.query;
+        const { from, to, on, limit = 100, asset = 'btc', currency } = req.query;
         const searchParams = {
-            asset,
-            [currency]: { $exists: true }
+            asset
         }
         if (from) {
             searchParams.date = { $gte: new Date(from).getTime() };
@@ -195,7 +195,17 @@ app.get("/price-history", async (req, res) => {
         if (on) {
             searchParams.date = { $eq: new Date(on).getTime() };
         }
-        const priceHistory = await PriceHistory.find(searchParams, { _id: 0, __v: 0 })
+        if (currency) {
+            searchParams[currency] = { $exists: true };
+        }
+        const dataFormat = { _id: 0, __v: 0, asset: 0 };
+        if (currency === 'inr') {
+            dataFormat.usd = 0;
+        }
+        if (currency === 'usd') {
+            dataFormat.inr = 0;
+        }
+        const priceHistory = await PriceHistory.find(searchParams, dataFormat)
             .sort({ date: -1 })
             .limit(limit === 'all' ? 0 : parseInt(limit));
         res.json(priceHistory);
