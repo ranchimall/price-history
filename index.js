@@ -18,7 +18,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // connect to MongoDB
-mongoose.connect('mongodb://localhost/price-history');
+mongoose.connect(`mongodb://${HOST}/price-history`);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
