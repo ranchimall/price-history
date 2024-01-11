@@ -168,22 +168,15 @@ function loadHistoricToDb() {
                     inr: parseFloat(parseFloat(close2).toFixed(2)),
                 });
             }
+            // update many
+            await PriceHistory.deleteMany({ asset: 'btc' });
             await PriceHistory.insertMany(priceHistoryData);
         })
         .catch((err) => {
             console.log(err);
         })
 }
-// run loadHistoricToDb() only once when the server starts and no data is present in the database
-PriceHistory.countDocuments()
-    .then((count) => {
-        if (count === 0) {
-            loadHistoricToDb();
-        }
-    })
-    .catch((err) => {
-        console.log(err);
-    })
+loadHistoricToDb();
 
 app.get("/price-history", async (req, res) => {
     try {
@@ -240,7 +233,7 @@ app.post("/price-history", async (req, res) => {
 app.listen(PORT, HOST, () => {
     console.log(`Listening on ${HOST}:${PORT}`);
 });
-cron.schedule('0 12 * * *', async () => {
+cron.schedule('0 */4 * * *', async () => {
     try {
         // will return a csv file
         const [usd, inr] = await Promise.all([

@@ -2,7 +2,7 @@ GET http://localhost:3000/
 
 ###
 
-GET http://localhost:3000/price-history?limit=10
+GET http://localhost:3000/price-history?from=2024-01-12
 
 ###
 POST http://localhost:3000/price-history
