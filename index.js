@@ -5,8 +5,8 @@ const cors = require('cors');
 const cron = require('node-cron');
 const rateLimit = require('express-rate-limit');
 const app = express();
-const PORT = 3000 || process.env.PORT;
-const HOST = '0.0.0.0' || process.env.HOST;
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '127.0.0.1';
 app.use(express.json());
 app.use(cors());
 
