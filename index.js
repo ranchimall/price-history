@@ -37,6 +37,9 @@ app.get("/", (req, res) => {
                 font-size: 2rem;
                 margin-bottom: 2rem;
             }
+            a{
+                color: inherit;
+            }
             table {
                 border-collapse: collapse;
             }
@@ -74,7 +77,9 @@ app.get("/", (req, res) => {
                 Available endpoints:
             </h3>
             <ul>
-                <li>/price-history</li>
+                <li>
+                    <a href="/price-history">/price-history</a>
+                </li>
             </ul>
             <h3>
                 Query parameters:
@@ -224,7 +229,7 @@ app.post("/price-history", async (req, res) => {
         if (!Array.isArray(dates)) {
             return res.status(400).json({ error: 'dates must be an array' });
         }
-        const priceHistory = await PriceHistory.find({ date: { $in: dates } }, { _id: 0, __v: 0 });
+        const priceHistory = await PriceHistory.find({ date: { $in: dates } }, { _id: 0, __v: 0, asset: 0 });
         res.json(priceHistory);
     } catch (err) {
         console.log(err);
